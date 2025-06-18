@@ -1,0 +1,37 @@
+(defcfg
+  process-unmapped-keys yes
+)
+
+(defsrc
+  a s h j k l ; lctl lalt caps
+)
+
+(defvar
+  tap-time 300
+  hold-time 300
+)
+
+(defalias
+  ;; Navigation layer hold
+  ralt-nav (layer-toggle nav)
+
+  ;; Tap-hold modifiers
+  a-mod (tap-hold $tap-time $hold-time a @ralt-nav)
+  s-mod (tap-hold $tap-time $hold-time s lsft)
+  ;-mod (tap-hold $tap-time $hold-time ; @ralt-nav)
+)
+
+(deflayer base
+  ;; Maps to: a s   h j k l
+  @a-mod  @s-mod  h   j   k   l
+  ;; Maps to: ; lctl lalt caps
+  @;-mod  lalt    lctl    esc
+)
+
+(deflayer nav
+  ;; Maps to: a    s     h     j     k     l
+  _    _    left  down  up   right
+  ;; Maps to: ;  lctl  lalt  caps
+  _    _    _    _
+)
+

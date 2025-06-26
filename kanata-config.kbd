@@ -3,35 +3,28 @@
 )
 
 (defsrc
-  a s h j k l ; lctl lalt caps
+  h j k l lctl lalt caps
 )
 
 (defvar
-  tap-time 300
-  hold-time 300
+  tap-time 200
+  hold-time 200
 )
 
 (defalias
-  ;; Navigation layer hold
   ralt-nav (layer-toggle nav)
-
-  ;; Tap-hold modifiers
-  a-mod (tap-hold $tap-time $hold-time a @ralt-nav)
-  s-mod (tap-hold $tap-time $hold-time s lsft)
-  ;-mod (tap-hold $tap-time $hold-time ; @ralt-nav)
+  
+  ;; Caps Lock tap=esc, hold=ralt + nav layer
+  caps-mod (tap-hold $tap-time $hold-time esc @ralt-nav)
 )
 
 (deflayer base
-  ;; Maps to: a s   h j k l
-  @a-mod  @s-mod  h   j   k   l
-  ;; Maps to: ; lctl lalt caps
-  @;-mod  lalt    lctl    esc
+  h   j   k   l
+  lalt lctl @caps-mod
 )
 
 (deflayer nav
-  ;; Maps to: a    s     h     j     k     l
-  _    _    left  down  up   right
-  ;; Maps to: ;  lctl  lalt  caps
-  _    _    _    _
+  left  down  up   right
+  lalt lctl    _
 )
 

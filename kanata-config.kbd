@@ -7,8 +7,8 @@
 )
 
 (defvar
-  tap-time 200
-  hold-time 200
+  tap-time 80
+  hold-time 80
 )
 
 (defalias
@@ -27,4 +27,3 @@
   left  down  up   right
   lalt lctl    _
 )
-

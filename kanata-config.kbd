@@ -1,29 +1,41 @@
 (defcfg
   process-unmapped-keys yes
+  concurrent-tap-hold yes
 )
 
 (defsrc
   h j k l lctl lalt caps
+  lsft lmet f23
 )
 
 (defvar
-  tap-time 80
-  hold-time 80
+  tap-time 150
+  hold-time 150
+  chord-window 50 ;; all keys of chord should press inside the window
 )
 
 (defalias
   ralt-nav (layer-toggle nav)
   
-  ;; Caps Lock tap=esc, hold=ralt + nav layer
+  ;; Caps Lock tap=esc, hold=nav layer 
   caps-mod (tap-hold $tap-time $hold-time esc @ralt-nav)
 )
 
+;; Changed to -experimental to bypass the parser bug.
+;; Added one-shot so a quick hardware macro properly holds Control.
+;; When there is a quick release of copilot key, ctrl is sent for 1.5 seconds
+(defchordsv2-experimental
+  (lsft lmet f23) (one-shot 1500 lctl) $chord-window all-released ()
+)
+
 (deflayer base
-  h   j   k   l
+  h    j    k    l
   lalt lctl @caps-mod
+  _    _    _
 )
 
 (deflayer nav
   left  down  up   right
   lalt lctl    _
+  _    _    _
 )

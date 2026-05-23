@@ -4,7 +4,7 @@
 )
 
 (defsrc
-  h j k l lctl lalt caps
+  h j k l e lctl lalt caps
   lsft lmet f23
 )
 
@@ -16,26 +16,26 @@
 
 (defalias
   ralt-nav (layer-toggle nav)
-  
-  ;; Caps Lock tap=esc, hold=nav layer 
+
+  ;; Caps Lock tap=esc, hold=nav layer
   caps-mod (tap-hold $tap-time $hold-time esc @ralt-nav)
+
+  ;; Caps+E: sends Super+Shift+E which GNOME catches via custom shortcut
+  switch-files (multi lmet lsft e)
 )
 
-;; Changed to -experimental to bypass the parser bug.
-;; Added one-shot so a quick hardware macro properly holds Control.
-;; When there is a quick release of copilot key, ctrl is sent for 1.5 seconds
 (defchordsv2-experimental
   (lsft lmet f23) (one-shot 1500 lctl) $chord-window all-released ()
 )
 
 (deflayer base
-  h    j    k    l
+  h    j    k    l    e
   lalt lctl @caps-mod
   _    _    _
 )
 
 (deflayer nav
-  left  down  up   right
+  left  down  up   right  @switch-files
   lalt lctl    _
-  _    _    _
+  _    _    _    _
 )

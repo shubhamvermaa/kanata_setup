@@ -7,6 +7,19 @@ Hardened Kanata setup with a dedicated service and custom GNOME window switching
 - **Hardened Service**: Runs as a restricted `kanata` user for maximum security.
 - **Wayland Support**: Uses a custom GNOME extension to bypass Snap sandboxing (Firefox/Chrome).
 
+## 🚀 Customize with AI
+
+The application bindings provided in this repository are part of my personal configuration. **You are encouraged to customize them for your own workflow!**
+
+The easiest way to add your own apps:
+1. **Clone the repo**.
+2. **Open the workspace** with an AI-assisted tool (like Cursor, Zed, or Gemini CLI).
+3. **Ask the AI** to: *"Add a new Capslock binding for [Your App Name] in the Kanata config and the GNOME setup script."*
+
+The AI can automatically find your `.desktop` IDs and update the scripts for you.
+
+---
+
 ## Installation
 
 The setup is split into two scripts. You can run them in any order, but the order below is recommended.
@@ -24,7 +37,7 @@ This downloads Kanata, sets up the restricted user, and starts the background se
 sudo ./setup-kanata-hardened.sh
 ```
 
-## Active Shortcuts (Capslock Layer)
+## Active Shortcuts (Default Config)
 
 | Key | Application | GNOME Shortcut |
 | :--- | :--- | :--- |
@@ -47,6 +60,9 @@ sudo ./setup-kanata-hardened.sh
   ```bash
   sudo systemctl restart kanata.service
   ```
+
+## Contributing & Support
+I am open to **suggestions**, **feature requests**, and **issue reports**! Please feel free to open an issue on GitHub if you find a bug or have an idea for improvement.
 
 ## Removal
 To revert all system changes:

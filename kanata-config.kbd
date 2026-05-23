@@ -4,7 +4,7 @@
 )
 
 (defsrc
-  h j k l e lctl lalt caps
+  h j k l f e g c a v t lctl lalt caps
   lsft lmet f23
 )
 
@@ -16,26 +16,37 @@
 
 (defalias
   ralt-nav (layer-toggle nav)
-
-  ;; Caps Lock tap=esc, hold=nav layer
+  
+  ;; Caps Lock tap=esc, hold=nav layer 
   caps-mod (tap-hold $tap-time $hold-time esc @ralt-nav)
 
-  ;; Caps+E: sends Super+Shift+E which GNOME catches via custom shortcut
+  ;; Application switch aliases
+  switch-ff (multi lmet lsft f)
   switch-files (multi lmet lsft e)
+  switch-gemini (multi lmet lsft g)
+  switch-chatgpt (multi lmet lsft c)
+  switch-antigravity (multi lmet lsft a)
+  switch-code (multi lmet lsft v)
+  
+  ;; Using Super+Shift+Y for Ghostty to avoid screenshot conflict
+  switch-ghostty (multi lmet lsft y)
 )
 
+;; Changed to -experimental to bypass the parser bug.
+;; Added one-shot so a quick hardware macro properly holds Control.
+;; When there is a quick release of copilot key, ctrl is sent for 1.5 seconds
 (defchordsv2-experimental
   (lsft lmet f23) (one-shot 1500 lctl) $chord-window all-released ()
 )
 
 (deflayer base
-  h    j    k    l    e
+  h    j    k    l    f    e    g    c    a    v    t
   lalt lctl @caps-mod
   _    _    _
 )
 
 (deflayer nav
-  left  down  up   right  @switch-files
+  left  down  up   right @switch-ff @switch-files @switch-gemini @switch-chatgpt @switch-antigravity @switch-code @switch-ghostty
   lalt lctl    _
-  _    _    _    _
+  _    _    _
 )

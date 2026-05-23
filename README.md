@@ -139,7 +139,18 @@ I am open to **suggestions**, **feature requests**, and **issue reports**! Pleas
 ---
 
 ## 🗑 Removal
-To revert all system changes:
+To revert all system changes, you will need to run the removal scripts.
+
+### 1. Remove GNOME Setup (User Level)
+This will remove the window cycler extension, delete the helper script (`~/.local/bin/switch-app-window.sh`), and remove the custom shortcuts.
 ```bash
+chmod +x remove-gnome-setup.sh
+./remove-gnome-setup.sh
+```
+
+### 2. Remove Kanata Service (System Level)
+This stops and deletes the system service and udev rules.
+```bash
+chmod +x remove-kanata.sh
 sudo ./remove-kanata.sh
 ```

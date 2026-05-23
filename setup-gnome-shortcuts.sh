@@ -22,14 +22,16 @@ echosucc "Extension files copied."
 
 # 2. Enable the Extension
 echoinfo "Enabling the extension..."
-# We try to enable it via gsettings directly to be safe
-ENABLED_EXTENSIONS=$(gsettings get org.gnome.shell enabled-extensions)
-if [[ "$ENABLED_EXTENSIONS" != *"$EXTENSION_UUID"* ]]; then
-    # Remove trailing ] and add our extension
-    NEW_EXTENSIONS="${ENABLED_EXTENSIONS%]*}, '$EXTENSION_UUID']"
-    gsettings set org.gnome.shell enabled-extensions "$NEW_EXTENSIONS"
-fi
+gnome-extensions enable "$EXTENSION_UUID"
 echosucc "Extension added to enabled-extensions list."
+
+# 2.5 Install switch-app-window.sh script
+BIN_DIR="$HOME/.local/bin"
+echoinfo "Installing switch-app-window.sh to $BIN_DIR..."
+mkdir -p "$BIN_DIR"
+cp "$PLAYGROUND_DIR/switch-app-window.sh" "$BIN_DIR/"
+chmod +x "$BIN_DIR/switch-app-window.sh"
+echosucc "Script installed."
 
 # 3. Configure Custom GNOME Shortcuts
 echoinfo "Configuring Custom GNOME Shortcuts..."
@@ -59,7 +61,7 @@ for key in "${!SHORTCUTS[@]}"; do
     IFS=':' read -r name app_id binding fallback <<< "${SHORTCUTS[$key]}"
     path="$BASE_PATH/$key/"
     
-    cmd="$PLAYGROUND_DIR/switch-app-window.sh $app_id"
+    cmd="$BIN_DIR/switch-app-window.sh $app_id"
     if [ -n "$fallback" ]; then cmd="$cmd $fallback"; fi
 
     gsettings set "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path" name "$name"

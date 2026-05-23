@@ -5,10 +5,6 @@
 # ==============================================================================
 
 # CONFIGURATION
-#
-# REQUIRED: Set the path to your Kanata config relative to $HOME.
-# E.g., if your config is at ~/somewhere/my-kanata.kbd, use "somewhere/my-kanata.kbd".
-KANATA_CONFIG_REL_PATH="kanata-config.kbd"
 
 # System location where the kanata config file will be placed
 # (DO NOT EDIT)
@@ -36,41 +32,14 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 # DETERMINE SOURCE CONFIG FILE PATH
-# Try finding it relative to the current $HOME (might be /root if using sudo)
-USER_KANATA_CONFIG_SRC="$HOME/$KANATA_CONFIG_REL_PATH"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+USER_KANATA_CONFIG_SRC="$SCRIPT_DIR/kanata-config.kbd"
 
-# If not found AND we are using sudo, try finding it relative to the original user's $HOME
-if [ ! -f "$USER_KANATA_CONFIG_SRC" ] && [ -n "$SUDO_USER" ]; then
-    echoinfo "Config not found via current HOME ($HOME), attempting lookup via SUDO_USER ($SUDO_USER)..."
-    SUDO_USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
-
-    if [ -z "$SUDO_USER_HOME" ]; then
-         echoerror "Could not determine home directory for user $SUDO_USER."
-         exit 1
-    fi
-
-    ALT_CONFIG_PATH="$SUDO_USER_HOME/$KANATA_CONFIG_REL_PATH"
-    echoinfo "Checking alternative path: $ALT_CONFIG_PATH"
-
-    if [ -f "$ALT_CONFIG_PATH" ]; then
-        echoinfo "Found config file using SUDO_USER: $ALT_CONFIG_PATH"
-        # Update the variable to use the correctly found path
-        USER_KANATA_CONFIG_SRC="$ALT_CONFIG_PATH"
-    else
-        # Config not found in either location
-        echoerror "Kanata config file not found at initial path: $HOME/$KANATA_CONFIG_REL_PATH"
-        echoerror "And also not found at alternative path: $ALT_CONFIG_PATH"
-        echoerror "Please ensure the relative path '$KANATA_CONFIG_REL_PATH' exists in your home directory."
-        exit 1
-    fi
-# If not found and not using sudo (or SUDO_USER not set), then it just doesn't exist
-elif [ ! -f "$USER_KANATA_CONFIG_SRC" ]; then
+if [ ! -f "$USER_KANATA_CONFIG_SRC" ]; then
     echoerror "Kanata config file not found at: $USER_KANATA_CONFIG_SRC"
-    echoerror "Please ensure the relative path '$KANATA_CONFIG_REL_PATH' exists in your home directory ($HOME)."
     exit 1
 fi
 
-# If we reach here, USER_KANATA_CONFIG_SRC holds the validated path to the source config file
 echoinfo "Using source config file: $USER_KANATA_CONFIG_SRC"
 
 echoinfo "Starting Kanata hardened setup..."
@@ -173,7 +142,8 @@ ProtectKernelModules=true
 ProtectKernelLogs=true
 ProtectSystem=strict
 ProtectControlGroups=true
-RestrictAddressFamilies=AF_UNIX # Allow only Unix sockets, deny others like network
+# Allow only Unix sockets, deny others like network
+RestrictAddressFamilies=AF_UNIX
 RestrictNamespaces=true
 SystemCallArchitectures=native
 SystemCallErrorNumber=EPERM

@@ -2,6 +2,11 @@
 
 Hardened Kanata setup with a dedicated service and custom GNOME window switching/cycling.
 
+**Verified Working Environment:**
+- **OS**: Ubuntu 26.04 (Rolling)
+- **Display Server**: Wayland Only
+- **Desktop Environment**: GNOME 50.1
+
 ## Features
 - **Capslock + Key**: Focus application, cycle through windows, or launch if not running.
 - **Hardened Service**: Runs as a restricted `kanata` user for maximum security.
@@ -17,6 +22,14 @@ The easiest way to add your own apps:
 3. **Ask the AI** to: *"Add a new Capslock binding for [Your App Name] in the Kanata config and the GNOME setup script."*
 
 The AI can automatically find your `.desktop` IDs and update the scripts for you.
+
+## Pre-requisites
+
+This setup relies on **Kanata**, a software keyboard remapper. 
+
+1. **Kanata Installation**: You should have Kanata installed on your system. If not, the `setup-kanata-hardened.sh` script in this repo will attempt to download and install version `v1.7.0` for you.
+2. **Knowledge Base**: For detailed information on how Kanata works, its configuration syntax, and advanced features, refer to the official documentation:
+   - [Official Kanata Documentation](https://github.com/jtroo/kanata)
 
 ---
 
@@ -37,7 +50,7 @@ This downloads Kanata, sets up the restricted user, and starts the background se
 sudo ./setup-kanata-hardened.sh
 ```
 
-## Active Shortcuts (Default Config)
+## Active Shortcuts (Capslock Layer)
 
 | Key | Application | GNOME Shortcut |
 | :--- | :--- | :--- |

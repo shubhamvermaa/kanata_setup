@@ -4,7 +4,7 @@
 )
 
 (defsrc
-  h j k l lctl lalt caps
+  h j k l f e g c a v t lctl lalt caps
   lsft lmet f23
 )
 
@@ -19,6 +19,17 @@
   
   ;; Caps Lock tap=esc, hold=nav layer 
   caps-mod (tap-hold $tap-time $hold-time esc @ralt-nav)
+
+  ;; Application switch aliases
+  switch-ff (multi lmet lsft f)
+  switch-files (multi lmet lsft e)
+  switch-gemini (multi lmet lsft g)
+  switch-chatgpt (multi lmet lsft c)
+  switch-antigravity (multi lmet lsft a)
+  switch-code (multi lmet lsft v)
+  
+  ;; Using Super+Shift+Y for Ghostty to avoid screenshot conflict
+  switch-ghostty (multi lmet lsft y)
 )
 
 ;; Changed to -experimental to bypass the parser bug.
@@ -29,13 +40,13 @@
 )
 
 (deflayer base
-  h    j    k    l
+  h    j    k    l    f    e    g    c    a    v    t
   lalt lctl @caps-mod
   _    _    _
 )
 
 (deflayer nav
-  left  down  up   right
+  left  down  up   right @switch-ff @switch-files @switch-gemini @switch-chatgpt @switch-antigravity @switch-code @switch-ghostty
   lalt lctl    _
   _    _    _
 )

@@ -38,6 +38,12 @@ echoinfo "Configuring Custom GNOME Shortcuts..."
 
 # Define the paths for our custom bindings
 BASE_PATH="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings"
+
+# IMPORTANT NOTE ON CHROME APPS:
+# The .desktop filenames for Chrome Web Apps (like Gemini or ChatGPT below) 
+# use cryptic IDs that are often unique to your browser profile.
+# You will need to replace these with your own! 
+# Find yours by running: ls ~/.local/share/applications | grep chrome
 declare -A SHORTCUTS=(
     ["kanata-firefox"]="Switch to Firefox:firefox_firefox.desktop:<Super><Shift>f"
     ["kanata-nautilus"]="Switch to Files:org.gnome.Nautilus.desktop:<Super><Shift>e:nautilus"

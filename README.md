@@ -109,17 +109,28 @@ systemctl status kanata.service
 
 ## 🏷 Active Shortcuts (Default Config)
 
-| Key | Application | GNOME Shortcut |
-| :--- | :--- | :--- |
-| **F** | Firefox | `Super+Shift+F` |
-| **E** | Files (Nautilus) | `Super+Shift+E` |
-| **G** | Gemini (Chrome App) | `Super+Shift+G` |
-| **C** | ChatGPT (Chrome App) | `Super+Shift+C` |
-| **A** | Antigravity IDE | `Super+Shift+A` |
-| **V** | VS Code | `Super+Shift+V` |
-| **T** | Ghostty | `Super+Shift+Y`* |
+By default, holding `Capslock` transforms your home row into navigation keys across the **entire OS**:
+- **H, J, K, L** act as Left, Down, Up, Right arrows.
 
-*\*Ghostty uses Y to avoid system screenshot conflicts.*
+You can freely change these in `kanata-config.kbd` to suit your preferences or repurpose them as more application shortcuts!
+
+| Key | Application | GNOME Shortcut | Notes |
+| :--- | :--- | :--- | :--- |
+| **F** | Firefox | `Super+Shift+F` | |
+| **E** | Files (Nautilus) | `Super+Shift+E` | |
+| **G** | Gemini (Chrome App) | `Super+Shift+G` | ⚠️ Requires manual ID update (See note) |
+| **C** | ChatGPT (Chrome App) | `Super+Shift+C` | ⚠️ Requires manual ID update (See note) |
+| **A** | Antigravity IDE | `Super+Shift+A` | |
+| **V** | VS Code | `Super+Shift+V` | |
+| **T** | Ghostty | `Super+Shift+Y` | Y avoids system screenshot conflict |
+| **N** | Notion (Chrome App) | `Super+Shift+N` | ⚠️ Requires manual ID update (See note) |
+
+> ⚠️ **IMPORTANT NOTE ON CHROME APPS (Gemini, ChatGPT)**
+> The `.desktop` filenames for Chrome Web Apps use cryptic IDs (e.g., `chrome-gdfaincndogidkdcdkhapmbffkckdkhn-Default.desktop`) that are often unique to your specific browser profile.
+> **The default ones in the setup script will likely NOT work for you.**
+> To fix this:
+> 1. Find your actual app ID: `ls ~/.local/share/applications | grep chrome`
+> 2. Replace the IDs in `setup-gnome-shortcuts.sh` before running it.
 
 ---
 

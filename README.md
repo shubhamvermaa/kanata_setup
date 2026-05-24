@@ -69,7 +69,7 @@ If you prefer to do it yourself:
 
 This setup relies on **Kanata**, a software keyboard remapper.
 
-1. **Kanata Installation**: The `setup-kanata-hardened.sh` script will attempt to install version `v1.7.0` for you.
+1. **Kanata Installation**: The `setup-kanata-hardened.sh` script will attempt to install version `v1.11.0` for you.
 2. **Documentation**: Refer to the [Official Kanata Documentation](https://github.com/jtroo) for config syntax.
 
 ---

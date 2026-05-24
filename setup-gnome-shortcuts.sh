@@ -45,22 +45,57 @@ BASE_PATH="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings"
 # You will need to replace these with your own! 
 # Find yours by running: ls ~/.local/share/applications | grep chrome
 declare -A SHORTCUTS=(
-    ["custom1"]="Switch to Firefox:firefox_firefox.desktop:<Super><Shift>f"
-    ["custom2"]="Switch to Files:org.gnome.Nautilus.desktop:<Super><Shift>e:nautilus"
-    ["custom3"]="Switch to Gemini:chrome-gdfaincndogidkdcdkhapmbffkckdkhn-Default.desktop:<Super><Shift>g"
-    ["custom4"]="Switch to ChatGPT:chrome-cadlkienfkclaiaibeoongdcgmdikeeg-Default.desktop:<Super><Shift>c"
-    ["custom5"]="Switch to Antigravity:antigravity-ide.desktop:<Super><Shift>a"
-    ["custom6"]="Switch to VS Code:code.desktop:<Super><Shift>v"
-    ["custom7"]="Switch to Ghostty:com.mitchellh.ghostty.desktop:<Super><Shift>y"
-    ["custom8"]="Switch to Notion:chrome-eggdienekcmbialeignhkgeiiikhchco-Default.desktop:<Super><Shift>n"
+    ["kanata-firefox"]="Switch to Firefox:firefox_firefox.desktop:<Super><Shift>f"
+    ["kanata-nautilus"]="Switch to Files:org.gnome.Nautilus.desktop:<Super><Shift>e:nautilus"
+    ["kanata-gemini"]="Switch to Gemini:chrome-gdfaincndogidkdcdkhapmbffkckdkhn-Default.desktop:<Super><Shift>g"
+    ["kanata-chatgpt"]="Switch to ChatGPT:chrome-cadlkienfkclaiaibeoongdcgmdikeeg-Default.desktop:<Super><Shift>c"
+    ["kanata-antigravity"]="Switch to Antigravity:antigravity-ide.desktop:<Super><Shift>a"
+    ["kanata-vscode"]="Switch to VS Code:code.desktop:<Super><Shift>v"
+    ["kanata-ghostty"]="Switch to Ghostty:com.mitchellh.ghostty.desktop:<Super><Shift>y"
+    ["kanata-notion"]="Switch to Notion:chrome-eggdienekcmbialeignhkgeiiikhchco-Default.desktop:<Super><Shift>n"
 )
 
-# Build the list of active custom shortcut paths
-BINDINGS_LIST="['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']" # Keep your OCR shortcut
+# Read the current custom bindings list safely
+CURRENT_BINDINGS=$(gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings 2>/dev/null || echo "@as []")
+
+# Convert the gsettings array to a clean bash list of paths
+declare -a BINDINGS_ARR=()
+if [ "$CURRENT_BINDINGS" != "@as []" ] && [ "$CURRENT_BINDINGS" != "[]" ]; then
+    # Strip brackets, single quotes, spaces, and split by comma
+    CLEAN_BINDINGS=$(echo "$CURRENT_BINDINGS" | tr -d "[]'" | tr "," "\n" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    while IFS= read -r line; do
+        if [ -n "$line" ]; then
+            BINDINGS_ARR+=("$line")
+        fi
+    done <<< "$CLEAN_BINDINGS"
+fi
+
+# Ensure all our kanata shortcuts are appended if not already present
 for key in "${!SHORTCUTS[@]}"; do
-    BINDINGS_LIST="${BINDINGS_LIST%]*}, '$BASE_PATH/$key/']"
+    path="$BASE_PATH/$key/"
+    exists=false
+    for existing in "${BINDINGS_ARR[@]}"; do
+        if [ "$existing" = "$path" ]; then
+            exists=true
+            break
+        fi
+    done
+    if [ "$exists" = false ]; then
+        BINDINGS_ARR+=("$path")
+    fi
 done
 
+# Build the gsettings list string: e.g. ['/path1/', '/path2/']
+BINDINGS_LIST="["
+for i in "${!BINDINGS_ARR[@]}"; do
+    if [ "$i" -gt 0 ]; then
+        BINDINGS_LIST+=", "
+    fi
+    BINDINGS_LIST+="'${BINDINGS_ARR[$i]}'"
+done
+BINDINGS_LIST+="]"
+
+# Set the updated custom keybindings array
 gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "$BINDINGS_LIST"
 
 # Apply each shortcut's details
@@ -75,7 +110,7 @@ for key in "${!SHORTCUTS[@]}"; do
     gsettings set "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path" command "$cmd"
     gsettings set "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path" binding "$binding"
 done
-echosucc "All 8 custom shortcuts configured."
+echosucc "All custom shortcuts configured non-destructively."
 
 # 4. Final instructions
 echoinfo "--------------------------------------------------------"

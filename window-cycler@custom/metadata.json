@@ -2,5 +2,5 @@
   "uuid": "window-cycler@custom",
   "name": "Window Cycler",
   "description": "D-Bus interface for cycling through windows of a specific application",
-  "shell-version": ["45", "46", "47", "50"]
+  "shell-version": ["45", "46", "47", "48", "49", "50", "51"]
 }

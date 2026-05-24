@@ -32,10 +32,10 @@
   switch-ghostty (multi lmet lsft y)
 )
 
-;; Changed to -experimental to bypass the parser bug.
+;; Stable chords setup.
 ;; Added one-shot so a quick hardware macro properly holds Control.
 ;; When there is a quick release of copilot key, ctrl is sent for 1.5 seconds
-(defchordsv2-experimental
+(defchordsv2
   (lsft lmet f23) (one-shot 1500 lctl) $chord-window all-released ()
 )
 

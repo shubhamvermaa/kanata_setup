@@ -32,20 +32,49 @@ echosucc "Script removed."
 echoinfo "Removing Custom GNOME Shortcuts..."
 
 BASE_PATH="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings"
-CURRENT_BINDINGS=$(gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings)
+CURRENT_BINDINGS=$(gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings 2>/dev/null || echo "@as []")
 
-# Remove custom1 through custom7 from the bindings array
-for i in {1..7}; do
-    TARGET="'$BASE_PATH/custom$i/'"
-    CURRENT_BINDINGS=$(echo "$CURRENT_BINDINGS" | sed "s|$TARGET, ||g" | sed "s|, $TARGET||g" | sed "s|$TARGET||g")
-    
-    # Reset the individual keybinding entries
-    gsettings reset "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$BASE_PATH/custom$i/" name || true
-    gsettings reset "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$BASE_PATH/custom$i/" command || true
-    gsettings reset "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$BASE_PATH/custom$i/" binding || true
+# Convert the gsettings array to a clean bash list of paths
+declare -a BINDINGS_ARR=()
+if [ "$CURRENT_BINDINGS" != "@as []" ] && [ "$CURRENT_BINDINGS" != "[]" ]; then
+    CLEAN_BINDINGS=$(echo "$CURRENT_BINDINGS" | tr -d "[]'" | tr "," "\n" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    while IFS= read -r line; do
+        if [ -n "$line" ]; then
+            BINDINGS_ARR+=("$line")
+        fi
+    done <<< "$CLEAN_BINDINGS"
+fi
+
+# Build a new array excluding any paths containing '/kanata-'
+declare -a REMAINING_ARR=()
+for path in "${BINDINGS_ARR[@]}"; do
+    if [[ "$path" == *"/kanata-"* ]]; then
+        echoinfo "Clearing keybinding at path: $path"
+        # Reset the individual keybinding entries
+        gsettings reset "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path" name || true
+        gsettings reset "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path" command || true
+        gsettings reset "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path" binding || true
+    else
+        REMAINING_ARR+=("$path")
+    fi
 done
 
-gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "$CURRENT_BINDINGS"
+# Rebuild the gsettings array string
+if [ ${#REMAINING_ARR[@]} -eq 0 ]; then
+    BINDINGS_LIST="[]"
+else
+    BINDINGS_LIST="["
+    for i in "${!REMAINING_ARR[@]}"; do
+        if [ "$i" -gt 0 ]; then
+            BINDINGS_LIST+=", "
+        fi
+        BINDINGS_LIST+="'${REMAINING_ARR[$i]}'"
+    done
+    BINDINGS_LIST+="]"
+fi
+
+# Set the custom keybindings array with only the remaining user shortcuts
+gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "$BINDINGS_LIST"
 
 echosucc "Shortcuts removed."
 

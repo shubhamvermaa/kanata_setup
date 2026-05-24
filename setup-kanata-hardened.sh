@@ -11,7 +11,7 @@
 SYSTEM_KANATA_CONFIG_DST="/etc/kanata/kanata-config.kbd"
 
 # Kanata version to download
-KANATA_VERSION="v1.7.0"
+KANATA_VERSION="v1.11.0"
 
 # Dedicated user/group names
 KANATA_USER="kanata"
@@ -82,19 +82,45 @@ echo "KERNEL==\"uinput\", MODE=\"0660\", GROUP=\"$UINPUT_GROUP\", OPTIONS+=\"sta
 #========================
 # STEP 5: Download and Install Kanata
 #========================
-KANATA_URL="https://github.com/jtroo/kanata/releases/download/${KANATA_VERSION}/kanata"
+KANATA_ZIP_URL="https://github.com/jtroo/kanata/releases/download/${KANATA_VERSION}/linux-binaries-x64.zip"
 KANATA_BIN_PATH="/usr/local/bin/kanata"
+TEMP_ZIP="/tmp/kanata-linux-binaries.zip"
 
 echoinfo "Stopping kanata.service (if running) before download..."
 systemctl stop kanata.service > /dev/null 2>&1 || true # Stop the service, ignore errors
 
-echoinfo "Downloading Kanata ${KANATA_VERSION} from ${KANATA_URL}..."
-# Use curl with -fSL to follow redirects, show errors, and fail silently on HTTP errors
-curl -fSL -o "$KANATA_BIN_PATH" "$KANATA_URL"
+# Ensure unzip is installed
+if ! command -v unzip &> /dev/null; then
+    echoinfo "'unzip' command not found. Attempting to install it..."
+    if command -v apt-get &> /dev/null; then
+        apt-get update && apt-get install -y unzip
+    elif command -v dnf &> /dev/null; then
+        dnf install -y unzip
+    elif command -v pacman &> /dev/null; then
+        pacman -Sy --noconfirm unzip
+    else
+        echoerror "unzip is missing and no supported package manager was found. Please install unzip manually."
+        exit 1
+    fi
+fi
+
+echoinfo "Downloading Kanata ${KANATA_VERSION} from ${KANATA_ZIP_URL}..."
+curl -fSL -o "$TEMP_ZIP" "$KANATA_ZIP_URL"
 if [ $? -ne 0 ]; then
-    echoerror "Failed to download Kanata. Check URL or network connection."
+    echoerror "Failed to download Kanata zip. Check URL or network connection."
     exit 1
 fi
+
+echoinfo "Extracting Kanata binary..."
+unzip -o "$TEMP_ZIP" kanata_linux_x64 -d /usr/local/bin/
+if [ $? -ne 0 ]; then
+    echoerror "Failed to extract Kanata binary from zip."
+    rm -f "$TEMP_ZIP"
+    exit 1
+fi
+
+mv /usr/local/bin/kanata_linux_x64 "$KANATA_BIN_PATH"
+rm -f "$TEMP_ZIP"
 
 echoinfo "Setting permissions on ${KANATA_BIN_PATH}..."
 chown root:"$KANATA_USER" "$KANATA_BIN_PATH"
@@ -161,10 +187,19 @@ WantedBy=multi-user.target
 EOF
 
 #========================
-# STEP 7: Reload Systemd, Enable & Start Service
+# STEP 7: Reload Systemd, Apply udev, Enable & Start Service
 #========================
 echoinfo "Reloading systemd daemon..."
 systemctl daemon-reload
+
+echoinfo "Applying udev rules and device permissions immediately..."
+udevadm control --reload-rules && udevadm trigger || echoinfo "Unable to trigger udevadm (often normal inside containers)."
+if [ -c /dev/uinput ]; then
+    chgrp "$UINPUT_GROUP" /dev/uinput && chmod 0660 /dev/uinput
+    echoinfo "/dev/uinput permissions updated successfully."
+else
+    echoinfo "/dev/uinput device node not found. It will be initialized on next boot."
+fi
 
 echoinfo "Enabling kanata.service..."
 systemctl enable kanata.service
@@ -174,8 +209,10 @@ systemctl restart kanata.service
 
 echoinfo "-----------------------------------------------------"
 echoinfo "Kanata setup script finished!"
-echoinfo "Please REBOOT your system for all changes (especially udev rules) to take effect properly."
-echoinfo "After rebooting, check status with: systemctl status kanata.service"
+echoinfo "The background service has been started and is active."
+echoinfo "You should be able to use Kanata immediately!"
+echoinfo "Check status with: systemctl status kanata.service"
+echoinfo "(If shortcuts aren't active immediately, a quick reboot is recommended.)"
 echoinfo "-----------------------------------------------------"
 
 exit 0

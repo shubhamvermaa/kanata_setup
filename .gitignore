@@ -1,0 +1,15 @@
+# Git Ignore Rules
+
+# Temporary/swap files
+*~
+*.swp
+*.log
+
+# GNOME temporary zip packages
+*.zip
+
+# Local IDE folders
+.vscode/
+.idea/
+.cursor/
+.gemini/

@@ -34,8 +34,8 @@ echoinfo "Removing Custom GNOME Shortcuts..."
 BASE_PATH="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings"
 CURRENT_BINDINGS=$(gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings)
 
-# Remove custom1 through custom7 from the bindings array
-for i in {1..7}; do
+# Remove custom1 through custom8 from the bindings array
+for i in {1..8}; do
     TARGET="'$BASE_PATH/custom$i/'"
     CURRENT_BINDINGS=$(echo "$CURRENT_BINDINGS" | sed "s|$TARGET, ||g" | sed "s|, $TARGET||g" | sed "s|$TARGET||g")
     

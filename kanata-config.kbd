@@ -4,7 +4,7 @@
 )
 
 (defsrc
-  h j k l f e g c a v t lctl lalt caps
+  h j k l f e g c a v t n lctl lalt caps
   lsft lmet f23
 )
 
@@ -27,6 +27,7 @@
   switch-chatgpt (multi lmet lsft c)
   switch-antigravity (multi lmet lsft a)
   switch-code (multi lmet lsft v)
+  switch-notion (multi lmet lsft n)
   
   ;; Using Super+Shift+Y for Ghostty to avoid screenshot conflict
   switch-ghostty (multi lmet lsft y)
@@ -40,13 +41,13 @@
 )
 
 (deflayer base
-  h    j    k    l    f    e    g    c    a    v    t
+  h    j    k    l    f    e    g    c    a    v    t    n
   lalt lctl @caps-mod
   _    _    _
 )
 
 (deflayer nav
-  left  down  up   right @switch-ff @switch-files @switch-gemini @switch-chatgpt @switch-antigravity @switch-code @switch-ghostty
+  left  down  up   right @switch-ff @switch-files @switch-gemini @switch-chatgpt @switch-antigravity @switch-code @switch-ghostty @switch-notion
   lalt lctl    _
   _    _    _
 )

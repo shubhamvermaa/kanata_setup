@@ -38,6 +38,12 @@ echoinfo "Configuring Custom GNOME Shortcuts..."
 
 # Define the paths for our custom bindings
 BASE_PATH="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings"
+
+# IMPORTANT NOTE ON CHROME APPS:
+# The .desktop filenames for Chrome Web Apps (like Gemini or ChatGPT below) 
+# use cryptic IDs that are often unique to your browser profile.
+# You will need to replace these with your own! 
+# Find yours by running: ls ~/.local/share/applications | grep chrome
 declare -A SHORTCUTS=(
     ["custom1"]="Switch to Firefox:firefox_firefox.desktop:<Super><Shift>f"
     ["custom2"]="Switch to Files:org.gnome.Nautilus.desktop:<Super><Shift>e:nautilus"
@@ -46,6 +52,7 @@ declare -A SHORTCUTS=(
     ["custom5"]="Switch to Antigravity:antigravity-ide.desktop:<Super><Shift>a"
     ["custom6"]="Switch to VS Code:code.desktop:<Super><Shift>v"
     ["custom7"]="Switch to Ghostty:com.mitchellh.ghostty.desktop:<Super><Shift>y"
+    ["custom8"]="Switch to Notion:chrome-eggdienekcmbialeignhkgeiiikhchco-Default.desktop:<Super><Shift>n"
 )
 
 # Build the list of active custom shortcut paths
@@ -68,7 +75,7 @@ for key in "${!SHORTCUTS[@]}"; do
     gsettings set "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path" command "$cmd"
     gsettings set "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path" binding "$binding"
 done
-echosucc "All 7 custom shortcuts configured."
+echosucc "All 8 custom shortcuts configured."
 
 # 4. Final instructions
 echoinfo "--------------------------------------------------------"

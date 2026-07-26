@@ -9,7 +9,7 @@ Hardened Kanata setup with a dedicated service and custom GNOME window switching
 
 ---
 
-## ✨ How It Works
+## How It Works
 
 Think of `Capslock` as a **"leader key"** (similar to Vim or tmux).
 
@@ -21,7 +21,7 @@ It behaves like a **smart app switcher**, not just a shortcut.
 
 ---
 
-## 🧠 Architecture Overview
+## Architecture Overview
 
 This setup removes the "black box" by combining two distinct layers:
 
@@ -36,7 +36,7 @@ This setup removes the "black box" by combining two distinct layers:
 
 ---
 
-## 🔒 Security (Why "Hardened"?)
+## Security (Why "Hardened"?)
 
 - **Restricted User**: The `kanata` service runs as a non-login, restricted system user.
 - **Isolation**: It has no access to your home directory or personal files.
@@ -45,7 +45,7 @@ This setup removes the "black box" by combining two distinct layers:
 
 ---
 
-## 🚀 Customize with AI
+## Customize with AI
 
 The application bindings provided are part of my personal configuration. **You are encouraged to customize them!**
 
@@ -55,7 +55,7 @@ The application bindings provided are part of my personal configuration. **You a
 
 ---
 
-## ✍️ Manual Customization (Alternative)
+## Manual Customization (Alternative)
 
 If you prefer to do it yourself:
 1. Find the `.desktop` file: `ls /usr/share/applications | grep -i <app>`
@@ -65,7 +65,7 @@ If you prefer to do it yourself:
 
 ---
 
-## 📋 Pre-requisites
+## Pre-requisites
 
 This setup relies on **Kanata**, a software keyboard remapper.
 
@@ -74,7 +74,7 @@ This setup relies on **Kanata**, a software keyboard remapper.
 
 ---
 
-## 🛠 Installation
+## Installation
 
 The setup is split into two scripts. **Order matters for the best experience**:
 
@@ -95,7 +95,7 @@ sudo ./setup-kanata-hardened.sh
 
 ---
 
-## ✅ Verify Installation
+## Verify Installation
 
 Run:
 ```bash
@@ -107,7 +107,7 @@ systemctl status kanata.service
 
 ---
 
-## 🏷 Active Shortcuts (Default Config)
+## Active Shortcuts (Default Config)
 
 By default, holding `Capslock` transforms your home row into navigation keys across the **entire OS**:
 - **H, J, K, L** act as Left, Down, Up, Right arrows.
@@ -123,8 +123,8 @@ You can freely change these in `kanata-config.kbd` to suit your preferences or r
 | **A** | Antigravity IDE | `Super+Shift+A` | |
 | **V** | VS Code | `Super+Shift+V` | |
 | **T** | Ghostty | `Super+Shift+T` | |
-| **R** | Terminal (Ptyxis) | `Super+Shift+R` | |
 | **N** | Notion (Chrome App) | `Super+Shift+N` | ⚠️ Requires manual ID update (See note) |
+| **R** | Terminal (Ptyxis) | `Super+Shift+R` | |
 
 > ⚠️ **IMPORTANT NOTE ON CHROME APPS (Gemini, ChatGPT)**
 > The `.desktop` filenames for Chrome Web Apps use cryptic IDs (e.g., `chrome-gdfaincndogidkdcdkhapmbffkckdkhn-Default.desktop`) that are often unique to your specific browser profile.
@@ -135,7 +135,7 @@ You can freely change these in `kanata-config.kbd` to suit your preferences or r
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting & Learnings
 
 - **Wayland Limitation**: Wayland restricts background window focus. This is why the **GNOME Extension** included in this repo is mandatory.
 - **Keys not detected**: Run `sudo kanata -d` to see live key events for debugging.
@@ -145,14 +145,14 @@ For a deep dive into the undocumented GNOME and Wayland quirks discovered while 
 
 ---
 
-## 🤝 Contributing & Support
+## Contributing & Support
 I am open to **suggestions**, **feature requests**, and **issue reports**! Please feel free to open an issue.
 
 **If you find this setup helpful, please give it a ⭐ on GitHub!**
 
 ---
 
-## 🗑 Removal
+## Removal
 To revert all system changes, you will need to run the removal scripts.
 
 ### 1. Remove GNOME Setup (User Level)

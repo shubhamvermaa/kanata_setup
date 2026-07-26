@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
 # ==============================================================================
 # Script to set up Kanata with a dedicated user and hardened systemd service
@@ -12,6 +13,7 @@ SYSTEM_KANATA_CONFIG_DST="/etc/kanata/kanata-config.kbd"
 
 # Kanata version to download
 KANATA_VERSION="v1.11.0"
+KANATA_ZIP_SHA256="d9f634afb4c7f078cc2aacf3998fd65b432d4d83296cc48a89f941525459b4e2"
 
 # Dedicated user/group names
 KANATA_USER="kanata"
@@ -48,10 +50,18 @@ echoinfo "Starting Kanata hardened setup..."
 # STEP 1: Create User/Group
 #========================
 echoinfo "Creating group '$UINPUT_GROUP' (if it doesn't exist)..."
-groupadd "$UINPUT_GROUP" || echoinfo "Group '$UINPUT_GROUP' likely already exists."
+if ! getent group "$UINPUT_GROUP" >/dev/null; then
+    groupadd "$UINPUT_GROUP"
+else
+    echoinfo "Group '$UINPUT_GROUP' already exists."
+fi
 
 echoinfo "Creating user '$KANATA_USER' (if it doesn't exist)..."
-useradd --system --no-create-home --groups input,"$UINPUT_GROUP" --shell /bin/false --user-group "$KANATA_USER" || echoinfo "User '$KANATA_USER' likely already exists."
+if ! id -u "$KANATA_USER" >/dev/null 2>&1; then
+    useradd --system --no-create-home --groups input,"$UINPUT_GROUP" --shell /bin/false --user-group "$KANATA_USER"
+else
+    echoinfo "User '$KANATA_USER' already exists."
+fi
 
 #========================
 # STEP 2: Prepare Config Directory & Copy Config
@@ -60,8 +70,7 @@ echoinfo "Creating directory /etc/kanata..."
 mkdir -p /etc/kanata
 
 echoinfo "Copying Kanata config from $USER_KANATA_CONFIG_SRC to $SYSTEM_KANATA_CONFIG_DST..."
-cp "$USER_KANATA_CONFIG_SRC" "$SYSTEM_KANATA_CONFIG_DST"
-if [ $? -ne 0 ]; then
+if ! cp "$USER_KANATA_CONFIG_SRC" "$SYSTEM_KANATA_CONFIG_DST"; then
     echoerror "Failed to copy config file. Please check permissions and paths."
     exit 1
 fi
@@ -105,15 +114,16 @@ if ! command -v unzip &> /dev/null; then
 fi
 
 echoinfo "Downloading Kanata ${KANATA_VERSION} from ${KANATA_ZIP_URL}..."
-curl -fSL -o "$TEMP_ZIP" "$KANATA_ZIP_URL"
-if [ $? -ne 0 ]; then
+if ! curl -fSL -o "$TEMP_ZIP" "$KANATA_ZIP_URL"; then
     echoerror "Failed to download Kanata zip. Check URL or network connection."
     exit 1
 fi
 
+echoinfo "Verifying SHA256 checksum..."
+echo "$KANATA_ZIP_SHA256  $TEMP_ZIP" | sha256sum -c -
+
 echoinfo "Extracting Kanata binary..."
-unzip -o "$TEMP_ZIP" kanata_linux_x64 -d /usr/local/bin/
-if [ $? -ne 0 ]; then
+if ! unzip -o "$TEMP_ZIP" kanata_linux_x64 -d /usr/local/bin/; then
     echoerror "Failed to extract Kanata binary from zip."
     rm -f "$TEMP_ZIP"
     exit 1

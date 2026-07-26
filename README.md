@@ -79,7 +79,7 @@ This setup relies on **Kanata**, a software keyboard remapper.
 The setup is split into two scripts. **Order matters for the best experience**:
 
 ### 1. GNOME UI Setup (User Level)
-Installs the window-cycling extension and configures all 7 custom keyboard shortcuts.
+Installs the window-cycling extension and safely configures all 8 custom keyboard shortcuts non-destructively (preserving any existing custom shortcuts you have configured).
 ```bash
 chmod +x setup-gnome-shortcuts.sh switch-app-window.sh
 ./setup-gnome-shortcuts.sh
@@ -122,7 +122,8 @@ You can freely change these in `kanata-config.kbd` to suit your preferences or r
 | **C** | ChatGPT (Chrome App) | `Super+Shift+C` | ⚠️ Requires manual ID update (See note) |
 | **A** | Antigravity IDE | `Super+Shift+A` | |
 | **V** | VS Code | `Super+Shift+V` | |
-| **T** | Ghostty | `Super+Shift+Y` | Y avoids system screenshot conflict |
+| **T** | Ghostty | `Super+Shift+T` | |
+| **R** | Terminal (Ptyxis) | `Super+Shift+R` | |
 | **N** | Notion (Chrome App) | `Super+Shift+N` | ⚠️ Requires manual ID update (See note) |
 
 > ⚠️ **IMPORTANT NOTE ON CHROME APPS (Gemini, ChatGPT)**
@@ -139,6 +140,8 @@ You can freely change these in `kanata-config.kbd` to suit your preferences or r
 - **Wayland Limitation**: Wayland restricts background window focus. This is why the **GNOME Extension** included in this repo is mandatory.
 - **Keys not detected**: Run `sudo kanata -d` to see live key events for debugging.
 - **App not focusing**: Ensure the `.desktop` ID in `setup-gnome-shortcuts.sh` exactly matches the app's internal ID.
+
+For a deep dive into the undocumented GNOME and Wayland quirks discovered while building this (like the `gsd-media-keys` path constraints and `dconf` caching bugs), read [LEARNINGS.md](LEARNINGS.md).
 
 ---
 

@@ -5,10 +5,11 @@
 set -euo pipefail
 
 APP_ID="${1:-}"
-LAUNCH_CMD="${2:-}"
+shift || true
+# The remaining arguments "$@" form the launch command.
 
 if [ -z "$APP_ID" ]; then
-  echo "Usage: $0 <app_id> [launch_command]" >&2
+  echo "Usage: $0 <app_id> [launch_command...]" >&2
   exit 1
 fi
 
@@ -21,12 +22,9 @@ RESULT=$(gdbus call --session \
 
 # If no window found (0) or extension error (-1), launch the app
 if [ "$RESULT" = "0" ] || [ "$RESULT" = "-1" ]; then
-  if [ -n "$LAUNCH_CMD" ]; then
-    # Run the provided command. We don't quote $LAUNCH_CMD here 
-    # to allow arguments to be parsed correctly.
-    nohup $LAUNCH_CMD >/dev/null 2>&1 &
+  if [ $# -gt 0 ]; then
+    nohup "$@" >/tmp/switch-app.log 2>&1 &
   else
-    # Fallback to gtk-launch which is very reliable for .desktop files
-    gtk-launch "$APP_ID" >/dev/null 2>&1 &
+    gtk-launch "$APP_ID" >/tmp/switch-app.log 2>&1 &
   fi
 fi

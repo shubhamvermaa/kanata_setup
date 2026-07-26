@@ -4,7 +4,7 @@
 )
 
 (defsrc
-  h j k l f e g c a v t n lctl lalt caps
+  h j k l f e g c a v t n r lctl lalt caps
   lsft lmet f23
 )
 
@@ -29,8 +29,9 @@
   switch-code (multi lmet lsft v)
   switch-notion (multi lmet lsft n)
   
-  ;; Using Super+Shift+Y for Ghostty to avoid screenshot conflict
-  switch-ghostty (multi lmet lsft y)
+  ;; Using Super+Shift+T for Ghostty and Super+Shift+R for Terminal
+  switch-ghostty (multi lmet lsft t)
+  switch-terminal (multi lmet lsft r)
 )
 
 ;; Stable chords setup.
@@ -41,13 +42,13 @@
 )
 
 (deflayer base
-  h    j    k    l    f    e    g    c    a    v    t    n
+  h    j    k    l    f    e    g    c    a    v    t    n    r
   lalt lctl @caps-mod
   _    _    _
 )
 
 (deflayer nav
-  left  down  up   right @switch-ff @switch-files @switch-gemini @switch-chatgpt @switch-antigravity @switch-code @switch-ghostty @switch-notion
+  left  down  up   right @switch-ff @switch-files @switch-gemini @switch-chatgpt @switch-antigravity @switch-code @switch-ghostty @switch-notion @switch-terminal
   lalt lctl    _
   _    _    _
 )

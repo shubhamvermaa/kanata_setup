@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
 # ==============================================================================
 # Script to REMOVE the hardened Kanata setup created by setup-kanata-hardened.sh
@@ -31,8 +32,8 @@ echoinfo "WARNING: This process is irreversible."
 
 # STEP 1: Stop and Disable Service
 echoinfo "Stopping and disabling kanata.service..."
-systemctl stop kanata.service > /dev/null 2>&1
-systemctl disable kanata.service > /dev/null 2>&1
+systemctl stop kanata.service > /dev/null 2>&1 || true
+systemctl disable kanata.service > /dev/null 2>&1 || true
 echoinfo "Service stopped and disabled (errors ignored)."
 
 # STEP 2: Remove Service File
@@ -42,7 +43,7 @@ rm -f "$SERVICE_FILE"
 # STEP 3: Reload Systemd
 echoinfo "Reloading systemd daemon..."
 systemctl daemon-reload
-systemctl reset-failed > /dev/null 2>&1 # Clean up failed state if any
+systemctl reset-failed > /dev/null 2>&1 || true # Clean up failed state if any
 
 # STEP 4: Remove Kanata Executable
 echoinfo "Removing Kanata executable: $KANATA_BIN..."
@@ -53,7 +54,7 @@ echoinfo "Removing udev rule: $UDEV_RULE..."
 rm -f "$UDEV_RULE"
 # Optionally reload udev rules (often not strictly necessary for removal)
 # echoinfo "Reloading udev rules..."
-# udevadm control --reload-rules > /dev/null 2>&1
+# udevadm control --reload-rules > /dev/null 2>&1 || true
 
 # STEP 6: Remove Configuration Directory
 echoinfo "Removing configuration directory: $CONFIG_DIR..."
@@ -65,8 +66,7 @@ rm -rf "$CONFIG_DIR"
 # 'userdel' often removes it too.
 if id "$KANATA_USER" > /dev/null 2>&1; then
     echoinfo "Deleting user '$KANATA_USER'..."
-    userdel "$KANATA_USER"
-    if id "$KANATA_USER" > /dev/null 2>&1; then
+    if ! userdel "$KANATA_USER"; then
         echoerror "Failed to delete user '$KANATA_USER'. Manual removal might be needed (userdel $KANATA_USER)."
     else
         echoinfo "User '$KANATA_USER' deleted."

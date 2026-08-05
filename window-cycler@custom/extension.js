@@ -37,11 +37,27 @@ export default class WindowCyclerExtension {
           let isMatch = false;
           if (app && app.get_id() === appId) {
             isMatch = true;
-          } else if (appId.toLowerCase().includes('notion') || appId.toLowerCase().includes('eggdienek')) {
+          } else if (app && (app.get_id() === appId + '.desktop' || app.get_id() + '.desktop' === appId)) {
+            isMatch = true;
+          } else if (appId.toLowerCase().includes('firefox') && app && app.get_id().toLowerCase().includes('firefox')) {
+            isMatch = true;
+          } else {
             const title = win.get_title() ? win.get_title().toLowerCase() : '';
             const wmClass = win.get_wm_class() ? win.get_wm_class().toLowerCase() : '';
-            if (title.includes('notion') || wmClass.includes('eggdienek')) {
-              isMatch = true;
+            const appIdLower = appId.toLowerCase();
+
+            if (appIdLower.includes('notion') || appIdLower.includes('dcokohelbbehjlcjjfmhfbpdgfjcoopf') || appIdLower.includes('eggdienek')) {
+              if (title.includes('notion') || wmClass.includes('dcokohelbbehjlcjjfmhfbpdgfjcoopf') || wmClass.includes('eggdienek')) {
+                isMatch = true;
+              }
+            } else if (appIdLower.includes('gemini') || appIdLower.includes('gdfaincndogidkdcdkhapmbffkckdkhn')) {
+              if (title.includes('gemini') || wmClass.includes('gdfaincndogidkdcdkhapmbffkckdkhn')) {
+                isMatch = true;
+              }
+            } else if (appIdLower.includes('chatgpt') || appIdLower.includes('cadlkienfkclaiaibeoongdcgmdikeeg')) {
+              if (title.includes('chatgpt') || wmClass.includes('cadlkienfkclaiaibeoongdcgmdikeeg')) {
+                isMatch = true;
+              }
             }
           }
           

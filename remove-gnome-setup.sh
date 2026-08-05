@@ -61,7 +61,7 @@ done
 
 # Rebuild the array string
 if [ ${#REMAINING_ARR[@]} -eq 0 ]; then
-    BINDINGS_LIST="[]"
+    BINDINGS_LIST="@as []"
 else
     BINDINGS_LIST="["
     for i in "${!REMAINING_ARR[@]}"; do

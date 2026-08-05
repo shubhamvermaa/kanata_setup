@@ -36,23 +36,68 @@ echoinfo "Configuring Custom GNOME Shortcuts..."
 
 BASE_PATH="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings"
 
+# Helper to find existing desktop files across distros (Fedora RPM, Flatpak, Snap, Debian/Ubuntu)
+find_desktop_file() {
+    local candidates=("$@")
+    for candidate in "${candidates[@]}"; do
+        for dir in "$HOME/.local/share/applications" "/usr/share/applications" "/var/lib/flatpak/exports/share/applications" "/var/lib/snapd/desktop/applications"; do
+            if [ -f "$dir/$candidate" ]; then
+                echo "$candidate"
+                return 0
+            fi
+        done
+    done
+    # Try searching by Name= in desktop files
+    if [ ${#candidates[@]} -gt 0 ]; then
+        local search_name="${candidates[0]}"
+        for dir in "$HOME/.local/share/applications" "/usr/share/applications"; do
+            if [ -d "$dir" ]; then
+                local matched_file
+                matched_file=$(grep -l -i "^Name=${search_name}$" "$dir"/*.desktop 2>/dev/null | head -n 1 || true)
+                if [ -n "$matched_file" ]; then
+                    basename "$matched_file"
+                    return 0
+                fi
+            fi
+        done
+    fi
+    # Fallback to the first candidate if none found on disk
+    echo "${candidates[0]}"
+}
+
+FIREFOX_DESKTOP=$(find_desktop_file "org.mozilla.firefox.desktop" "firefox.desktop" "firefox_firefox.desktop")
+TERMINAL_DESKTOP=$(find_desktop_file "org.gnome.Ptyxis.desktop" "org.gnome.Terminal.desktop")
+VSCODE_DESKTOP=$(find_desktop_file "code.desktop" "com.visualstudio.code.desktop" "code_code.desktop")
+GHOSTTY_DESKTOP=$(find_desktop_file "com.mitchellh.ghostty.desktop" "ghostty.desktop")
+NAUTILUS_DESKTOP=$(find_desktop_file "org.gnome.Nautilus.desktop")
+ANTIGRAVITY_DESKTOP=$(find_desktop_file "antigravity-ide.desktop" "antigravity.desktop")
+GEMINI_DESKTOP=$(find_desktop_file "com.google.Chrome.flextop.chrome-gdfaincndogidkdcdkhapmbffkckdkhn-Default.desktop" "chrome-gdfaincndogidkdcdkhapmbffkckdkhn-Default.desktop" "Gemini")
+CHATGPT_DESKTOP=$(find_desktop_file "com.google.Chrome.flextop.chrome-cadlkienfkclaiaibeoongdcgmdikeeg-Default.desktop" "chrome-cadlkienfkclaiaibeoongdcgmdikeeg-Default.desktop" "ChatGPT")
+NOTION_DESKTOP=$(find_desktop_file "com.google.Chrome.flextop.chrome-dcokohelbbehjlcjjfmhfbpdgfjcoopf-Default.desktop" "chrome-dcokohelbbehjlcjjfmhfbpdgfjcoopf-Default.desktop" "chrome-eggdienekcmbialeignhkgeiiikhchco-Default.desktop" "Notion")
+
+if [ "$TERMINAL_DESKTOP" = "org.gnome.Terminal.desktop" ]; then
+    TERMINAL_FALLBACK="gnome-terminal"
+else
+    TERMINAL_FALLBACK="ptyxis --new-window"
+fi
+
 declare -A SHORTCUTS=(
-    ["kanata-gemini"]="Switch to Gemini:chrome-gdfaincndogidkdcdkhapmbffkckdkhn-Default.desktop:<Super><Shift>g"
-    ["kanata-chatgpt"]="Switch to ChatGPT:chrome-cadlkienfkclaiaibeoongdcgmdikeeg-Default.desktop:<Super><Shift>c"
-    ["kanata-firefox"]="Switch to Firefox:firefox_firefox.desktop:<Super><Shift>f"
-    ["kanata-nautilus"]="Switch to Files:org.gnome.Nautilus.desktop:nautilus:<Super><Shift>e"
-    ["kanata-antigravity"]="Switch to Antigravity:antigravity-ide.desktop:<Super><Shift>a"
-    ["kanata-vscode"]="Switch to VS Code:code.desktop:<Super><Shift>v"
-    ["kanata-ghostty"]="Switch to Ghostty:com.mitchellh.ghostty.desktop:<Super><Shift>t"
-    ["kanata-notion"]="Switch to Notion:chrome-eggdienekcmbialeignhkgeiiikhchco-Default.desktop:<Super><Shift>n"
-    ["kanata-terminal"]="Switch to Terminal:org.gnome.Ptyxis.desktop:ptyxis --new-window:<Super><Shift>r"
+    ["kanata-gemini"]="Switch to Gemini:${GEMINI_DESKTOP}:<Super><Shift>g"
+    ["kanata-chatgpt"]="Switch to ChatGPT:${CHATGPT_DESKTOP}:<Super><Shift>c"
+    ["kanata-firefox"]="Switch to Firefox:${FIREFOX_DESKTOP}:<Super><Shift>f"
+    ["kanata-nautilus"]="Switch to Files:${NAUTILUS_DESKTOP}:nautilus:<Super><Shift>e"
+    ["kanata-antigravity"]="Switch to Antigravity:${ANTIGRAVITY_DESKTOP}:<Super><Shift>a"
+    ["kanata-vscode"]="Switch to VS Code:${VSCODE_DESKTOP}:<Super><Shift>v"
+    ["kanata-ghostty"]="Switch to Ghostty:${GHOSTTY_DESKTOP}:<Super><Shift>t"
+    ["kanata-notion"]="Switch to Notion:${NOTION_DESKTOP}:<Super><Shift>n"
+    ["kanata-terminal"]="Switch to Terminal:${TERMINAL_DESKTOP}:${TERMINAL_FALLBACK}:<Super><Shift>r"
 )
 
 # Read the current custom bindings list safely
 CURRENT_BINDINGS=$(dconf read /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings || echo "@as []")
 
 # Remove existing custom50-custom59 bindings to prevent duplicates
-CLEANED_BINDINGS=$(echo "$CURRENT_BINDINGS" | grep -o "'/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/[^']*'" | grep -v 'custom5[0-9]' | tr '\n' ',' | sed 's/,$//')
+CLEANED_BINDINGS=$(echo "$CURRENT_BINDINGS" | grep -o "'/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/[^']*'" 2>/dev/null | grep -v 'custom5[0-9]' | tr '\n' ',' | sed 's/,$//' || true)
 
 declare -a BINDINGS_ARR=()
 if [ -n "$CLEANED_BINDINGS" ] && [ "$CLEANED_BINDINGS" != "@as []" ] && [ "$CLEANED_BINDINGS" != "[]" ]; then
@@ -118,6 +163,9 @@ for key in "${!SHORTCUTS[@]}"; do
     dconf write "$BASE_PATH/$path"command "'$cmd'"
     dconf write "$BASE_PATH/$path"binding "'$binding'"
 done
+
+# Ensure window switching includes windows from all workspaces
+gsettings set org.gnome.shell.window-switcher current-workspace-only false || true
 
 echosuccess "All custom shortcuts configured non-destructively."
 echoinfo "--------------------------------------------------------"

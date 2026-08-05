@@ -16,3 +16,9 @@ When programmatically setting custom shortcuts via `gsettings` or `dconf`, the p
 Background shell scripts cannot force an existing application window to the front on Wayland.
 - **Pitfall:** `wmctrl`, `xdotool`, and similar X11 tools don't work on Wayland. A background script that tries to bring an app to the foreground will get a silent "Window is ready" notification instead of an actual focus switch.
 - **Fix:** Focus changes must happen *inside* the compositor. The `WindowCycler` GNOME Shell Extension in this repo exposes a D-Bus method that calls `window.activate(global.get_current_time())` from within the shell process itself — giving the background script the authority it needs to actually raise windows.
+
+### 4. Fedora & SELinux Compatibility
+- **SELinux Security Contexts**: Fedora runs SELinux in `Enforcing` mode by default. Custom binaries in `/usr/local/bin` and service units in `/etc/systemd/system/` must have their SELinux security contexts set via `restorecon` so systemd can execute them without SELinux AVC denials (`status=203/EXEC`).
+- **Kernel Module Auto-Loading**: Unlike Ubuntu where `uinput` is built-in or auto-loaded, Fedora requires explicit loading of the `uinput` kernel module (`modprobe uinput`) and persistent configuration via `/etc/modules-load.d/kanata.conf`.
+- **Package Managers**: Package dependencies (like `unzip`) are handled across both `dnf` / `dnf5` (Fedora), `apt-get` (Debian/Ubuntu), `pacman` (Arch), and `zypper` (openSUSE).
+- **Cross-Distro `.desktop` File Resolution**: Distros name application desktop files differently (e.g. `org.mozilla.firefox.desktop` on Fedora RPM/Flatpak vs `firefox_firefox.desktop` on Ubuntu Snap; `org.gnome.Ptyxis.desktop` on Fedora 41+ vs `org.gnome.Terminal.desktop` on Ubuntu). Dynamic file lookup across `/usr/share/applications`, `~/.local/share/applications`, and Flatpak/Snap export paths ensures shortcuts and window switching work out-of-the-box on Fedora.

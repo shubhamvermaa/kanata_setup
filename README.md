@@ -2,10 +2,10 @@
 
 Hardened Kanata setup with a dedicated service and custom GNOME window switching/cycling.
 
-**Verified Working Environment:**
-- **OS**: Ubuntu 26.04 (Rolling)
+**Verified Working Environments:**
+- **OS**: Fedora Linux (41+ / 44 Workstation), Ubuntu 26.04 (Rolling)
 - **Display Server**: Wayland Only
-- **Desktop Environment**: GNOME 50.1
+- **Desktop Environment**: GNOME 40+ (including GNOME 50+)
 
 ---
 

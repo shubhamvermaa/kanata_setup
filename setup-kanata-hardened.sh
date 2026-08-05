@@ -83,10 +83,18 @@ chown root:"$KANATA_USER" "$SYSTEM_KANATA_CONFIG_DST"
 chmod 640 "$SYSTEM_KANATA_CONFIG_DST"
 
 #========================
-# STEP 4: Create udev Rule
+# STEP 4: Create udev Rule & Kernel Module Config
 #========================
 echoinfo "Creating udev rule for /dev/uinput..."
 echo "KERNEL==\"uinput\", MODE=\"0660\", GROUP=\"$UINPUT_GROUP\", OPTIONS+=\"static_node=uinput\"" > /etc/udev/rules.d/50-kanata.rules
+
+echoinfo "Ensuring 'uinput' kernel module is loaded..."
+if command -v modprobe &> /dev/null; then
+    modprobe uinput || true
+fi
+if [ -d /etc/modules-load.d ]; then
+    echo "uinput" > /etc/modules-load.d/kanata.conf
+fi
 
 #========================
 # STEP 5: Download and Install Kanata
@@ -105,8 +113,12 @@ if ! command -v unzip &> /dev/null; then
         apt-get update && apt-get install -y unzip
     elif command -v dnf &> /dev/null; then
         dnf install -y unzip
+    elif command -v dnf5 &> /dev/null; then
+        dnf5 install -y unzip
     elif command -v pacman &> /dev/null; then
         pacman -Sy --noconfirm unzip
+    elif command -v zypper &> /dev/null; then
+        zypper install -y unzip
     else
         echoerror "unzip is missing and no supported package manager was found. Please install unzip manually."
         exit 1
@@ -135,6 +147,15 @@ rm -f "$TEMP_ZIP"
 echoinfo "Setting permissions on ${KANATA_BIN_PATH}..."
 chown root:"$KANATA_USER" "$KANATA_BIN_PATH"
 chmod 754 "$KANATA_BIN_PATH"
+
+#========================
+# STEP 5.5: Restore SELinux Contexts (Fedora / RHEL support)
+#========================
+if command -v restorecon &> /dev/null && selinuxenabled 2>/dev/null; then
+    echoinfo "SELinux detected. Restoring security contexts..."
+    restorecon -v "$KANATA_BIN_PATH" || true
+    restorecon -R -v /etc/kanata || true
+fi
 
 #========================
 # STEP 6: Create Systemd Service Unit
@@ -195,6 +216,10 @@ UMask=0077
 [Install]
 WantedBy=multi-user.target
 EOF
+
+if command -v restorecon &> /dev/null && selinuxenabled 2>/dev/null; then
+    restorecon -v /etc/systemd/system/kanata.service || true
+fi
 
 #========================
 # STEP 7: Reload Systemd, Apply udev, Enable & Start Service

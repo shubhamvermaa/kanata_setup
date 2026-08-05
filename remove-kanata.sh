@@ -49,9 +49,13 @@ systemctl reset-failed > /dev/null 2>&1 || true # Clean up failed state if any
 echoinfo "Removing Kanata executable: $KANATA_BIN..."
 rm -f "$KANATA_BIN"
 
-# STEP 5: Remove udev Rule
+# STEP 5: Remove udev Rule & Kernel Module Config
 echoinfo "Removing udev rule: $UDEV_RULE..."
 rm -f "$UDEV_RULE"
+if [ -f /etc/modules-load.d/kanata.conf ]; then
+    echoinfo "Removing modules-load configuration: /etc/modules-load.d/kanata.conf..."
+    rm -f /etc/modules-load.d/kanata.conf
+fi
 # Optionally reload udev rules (often not strictly necessary for removal)
 # echoinfo "Reloading udev rules..."
 # udevadm control --reload-rules > /dev/null 2>&1 || true

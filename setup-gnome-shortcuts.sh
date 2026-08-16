@@ -71,9 +71,9 @@ VSCODE_DESKTOP=$(find_desktop_file "code.desktop" "com.visualstudio.code.desktop
 GHOSTTY_DESKTOP=$(find_desktop_file "com.mitchellh.ghostty.desktop" "ghostty.desktop")
 NAUTILUS_DESKTOP=$(find_desktop_file "org.gnome.Nautilus.desktop")
 ANTIGRAVITY_DESKTOP=$(find_desktop_file "antigravity-ide.desktop" "antigravity.desktop")
-GEMINI_DESKTOP=$(find_desktop_file "com.google.Chrome.flextop.chrome-gdfaincndogidkdcdkhapmbffkckdkhn-Default.desktop" "chrome-gdfaincndogidkdcdkhapmbffkckdkhn-Default.desktop" "Gemini")
-CHATGPT_DESKTOP=$(find_desktop_file "com.google.Chrome.flextop.chrome-cadlkienfkclaiaibeoongdcgmdikeeg-Default.desktop" "chrome-cadlkienfkclaiaibeoongdcgmdikeeg-Default.desktop" "ChatGPT")
-NOTION_DESKTOP=$(find_desktop_file "com.google.Chrome.flextop.chrome-dcokohelbbehjlcjjfmhfbpdgfjcoopf-Default.desktop" "chrome-dcokohelbbehjlcjjfmhfbpdgfjcoopf-Default.desktop" "chrome-eggdienekcmbialeignhkgeiiikhchco-Default.desktop" "Notion")
+GEMINI_DESKTOP=$(find_desktop_file "gemini.desktop" "com.google.Chrome.flextop.chrome-gdfaincndogidkdcdkhapmbffkckdkhn-Default.desktop" "chrome-gdfaincndogidkdcdkhapmbffkckdkhn-Default.desktop" "Gemini")
+CHATGPT_DESKTOP=$(find_desktop_file "chatgpt.desktop" "com.google.Chrome.flextop.chrome-cadlkienfkclaiaibeoongdcgmdikeeg-Default.desktop" "chrome-cadlkienfkclaiaibeoongdcgmdikeeg-Default.desktop" "ChatGPT")
+NOTION_DESKTOP=$(find_desktop_file "notion.desktop" "com.google.Chrome.flextop.chrome-dcokohelbbehjlcjjfmhfbpdgfjcoopf-Default.desktop" "chrome-dcokohelbbehjlcjjfmhfbpdgfjcoopf-Default.desktop" "chrome-eggdienekcmbialeignhkgeiiikhchco-Default.desktop" "Notion")
 
 if [ "$TERMINAL_DESKTOP" = "org.gnome.Terminal.desktop" ]; then
     TERMINAL_FALLBACK="gnome-terminal"

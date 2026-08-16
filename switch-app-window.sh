@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Switch to or launch an application window via GNOME Shell D-Bus interface
-# Usage: switch-app-window.sh <app_id> [launch_command]
+# Usage: switch-app-window.sh <app_id> [launch_command...]
 
 set -euo pipefail
 
@@ -23,7 +23,7 @@ RESULT=$(gdbus call --session \
 # If no window found (0) or extension error (-1), launch the app
 if [ "$RESULT" = "0" ] || [ "$RESULT" = "-1" ]; then
   if [ $# -gt 0 ]; then
-    nohup "$@" >/tmp/switch-app.log 2>&1 &
+    nohup bash -c "$*" >/tmp/switch-app.log 2>&1 &
   else
     gtk-launch "$APP_ID" >/tmp/switch-app.log 2>&1 &
   fi

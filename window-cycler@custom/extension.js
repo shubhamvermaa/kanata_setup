@@ -10,6 +10,13 @@ const DBUS_IFACE_XML = `
       <arg type="s" name="app_id" direction="in"/>
       <arg type="i" name="result" direction="out"/>
     </method>
+    <method name="GetActiveMonitorInfo">
+      <arg type="i" name="width" direction="out"/>
+      <arg type="i" name="height" direction="out"/>
+      <arg type="d" name="scale" direction="out"/>
+      <arg type="i" name="suggested_dpi" direction="out"/>
+      <arg type="i" name="monitor_index" direction="out"/>
+    </method>
   </interface>
 </node>`;
 
@@ -18,6 +25,52 @@ export default class WindowCyclerExtension {
     this._connection = null;
     this._regId = null;
     this._lastAppWindows = {};
+  }
+
+  _onGetActiveMonitorInfo(invocation) {
+    try {
+      const display = global.get_display();
+      let monIdx = -1;
+
+      // 1. Try to get monitor under cursor
+      if (global.get_pointer) {
+        const [mouseX, mouseY] = global.get_pointer();
+        monIdx = display.get_monitor_index_for_rect(new Meta.Rectangle({
+          x: mouseX,
+          y: mouseY,
+          width: 1,
+          height: 1
+        }));
+      }
+
+      // 2. Fallback to current monitor or primary monitor
+      if (monIdx < 0) {
+        monIdx = display.get_current_monitor();
+      }
+      if (monIdx < 0) {
+        monIdx = display.get_primary_monitor();
+      }
+      if (monIdx < 0) {
+        monIdx = 0;
+      }
+
+      const geom = display.get_monitor_geometry(monIdx);
+      const scale = display.get_monitor_scale ? display.get_monitor_scale(monIdx) : 1.0;
+      const width = geom ? geom.width : 1920;
+      const height = geom ? geom.height : 1080;
+
+      // Base: 1080p -> 96 DPI
+      // 1440p (2K) -> 128 DPI (or scaled according to fractional scale)
+      // 2160p (4K) -> 192 DPI
+      const ratio = Math.max(width / 1920.0, height / 1080.0);
+      const effectiveScale = Math.max(ratio, scale);
+      const suggestedDpi = Math.round(96 * effectiveScale);
+
+      invocation.return_value(new GLib.Variant('(iidii)', [width, height, scale, suggestedDpi, monIdx]));
+    } catch (e) {
+      log('WindowCycler GetActiveMonitorInfo error: ' + e.message);
+      invocation.return_value(new GLib.Variant('(iidii)', [1920, 1080, 1.0, 96, 0]));
+    }
   }
 
   _onCycleAppWindows(connection, sender, objectPath, interfaceName, methodName, params, invocation) {
@@ -56,6 +109,10 @@ export default class WindowCyclerExtension {
               }
             } else if (appIdLower.includes('chatgpt') || appIdLower.includes('cadlkienfkclaiaibeoongdcgmdikeeg')) {
               if (title.includes('chatgpt') || wmClass.includes('cadlkienfkclaiaibeoongdcgmdikeeg')) {
+                isMatch = true;
+              }
+            } else if (appIdLower.includes('extensionmanager') || appIdLower.includes('extension-manager') || appIdLower.includes('extension_manager') || appIdLower.includes('extensions')) {
+              if (title.includes('extension') || wmClass.includes('extensionmanager') || wmClass.includes('extension-manager')) {
                 isMatch = true;
               }
             }
@@ -101,12 +158,16 @@ export default class WindowCyclerExtension {
       '/org/gnome/shell/extensions/WindowCycler',
       nodeInfo.interfaces[0],
       (conn, sender, path, iface, method, params, invocation) => {
+        if (methodName === 'CycleAppWindows') {
           this._onCycleAppWindows(conn, sender, path, iface, method, params, invocation);
+        } else if (methodName === 'GetActiveMonitorInfo') {
+          this._onGetActiveMonitorInfo(invocation);
+        }
       },
       null,
       null
     );
-    log('WindowCycler: D-Bus interface registered');
+    log('WindowCycler: D-Bus interface registered with GetActiveMonitorInfo');
   }
 
   disable() {

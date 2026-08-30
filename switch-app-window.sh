@@ -13,15 +13,15 @@ if [ -z "$APP_ID" ]; then
   exit 1
 fi
 
-# Try to cycle/focus via the Extension
-RESULT=$(gdbus call --session \
+# Try to cycle/focus or launch natively via the Extension
+RESULT=$(gdbus call --session --timeout 2 \
   --dest org.gnome.Shell \
   --object-path /org/gnome/shell/extensions/WindowCycler \
   --method org.gnome.Shell.Extensions.WindowCycler.CycleAppWindows \
-  "$APP_ID" 2>/dev/null | grep -oP '\(\K\d+' || echo "-1")
+  "$APP_ID" 2>/dev/null | grep -oP '\(\K-?\d+' || echo "-1")
 
-# If no window found (0) or extension error (-1), launch the app
-if [ "$RESULT" = "0" ] || [ "$RESULT" = "-1" ]; then
+# If extension error or app not registered in Shell.AppSystem (-1), use fallback launch
+if [ "$RESULT" = "-1" ]; then
   if [ $# -gt 0 ]; then
     nohup bash -c "$*" >/tmp/switch-app.log 2>&1 &
   else

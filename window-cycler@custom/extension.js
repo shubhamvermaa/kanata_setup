@@ -127,7 +127,32 @@ export default class WindowCyclerExtension {
       let result;
 
       if (count === 0) {
-        result = 0;
+        const appSys = Shell.AppSystem.get_default();
+        let app = appSys.lookup_app(appId);
+        if (!app && !appId.endsWith('.desktop')) {
+          app = appSys.lookup_app(appId + '.desktop');
+        }
+        if (!app) {
+          const apps = appSys.get_installed();
+          for (const a of apps) {
+            const id = a.get_id();
+            if (id === appId || id === appId + '.desktop' || (id && id.toLowerCase().includes(appId.toLowerCase()))) {
+              app = a;
+              break;
+            }
+          }
+        }
+
+        if (app) {
+          try {
+            app.open_new_window(-1);
+          } catch (launchErr) {
+            app.activate();
+          }
+          result = 0;
+        } else {
+          result = -1;
+        }
       } else if (count === 1) {
         windows[0].activate(global.get_current_time());
         result = 1;
@@ -157,11 +182,18 @@ export default class WindowCyclerExtension {
     this._regId = this._connection.register_object(
       '/org/gnome/shell/extensions/WindowCycler',
       nodeInfo.interfaces[0],
-      (conn, sender, path, iface, method, params, invocation) => {
-        if (methodName === 'CycleAppWindows') {
-          this._onCycleAppWindows(conn, sender, path, iface, method, params, invocation);
-        } else if (methodName === 'GetActiveMonitorInfo') {
-          this._onGetActiveMonitorInfo(invocation);
+      (conn, sender, path, iface, methodName, params, invocation) => {
+        try {
+          if (methodName === 'CycleAppWindows') {
+            this._onCycleAppWindows(conn, sender, path, iface, methodName, params, invocation);
+          } else if (methodName === 'GetActiveMonitorInfo') {
+            this._onGetActiveMonitorInfo(invocation);
+          } else {
+            invocation.return_dbus_error('org.gnome.Shell.Extensions.WindowCycler.Error', `Unknown method: ${methodName}`);
+          }
+        } catch (e) {
+          log('WindowCycler dispatch error: ' + e.message);
+          invocation.return_dbus_error('org.gnome.Shell.Extensions.WindowCycler.Error', e.message);
         }
       },
       null,
